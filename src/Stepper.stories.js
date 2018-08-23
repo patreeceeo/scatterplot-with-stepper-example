@@ -64,6 +64,8 @@ storiesOf('Stepper', module)
 
 storiesOf('ScatterPlot', module)
   .add('unfocused', () => <ScatterPlot
+    width={100}
+    height={100}
     points={[
       {
         id: 'XXX',

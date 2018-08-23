@@ -4,8 +4,9 @@ import PropTypes from 'prop-types'
 import { storiesOf } from '@storybook/react'
 
 import Stepper, { shapes } from './Stepper.js'
+import ScatterPlot from './ScatterPlot.js'
 
-class Graph extends React.Component {
+class EchoJson extends React.Component {
   render() {
     const { data } = this.props
 
@@ -13,7 +14,7 @@ class Graph extends React.Component {
   }
 }
 
-Graph.propTypes = {
+EchoJson.propTypes = {
   data: PropTypes.object
 }
 
@@ -37,16 +38,16 @@ class Container extends React.Component {
         steps={this.props.steps}
         onStep={this.handleStep}
       />,
-      <Graph
-        key='graph'
-        data={this.props.steps[this.state.stepIndex]}
-      />
+      React.cloneElement(React.Children.only(this.props.children), {
+        data: this.props.steps[this.state.stepIndex]
+      })
     ]
   }
 }
 
 Container.propTypes = {
-  steps: shapes.steps
+  steps: shapes.steps,
+  children: PropTypes.node
 }
 
 storiesOf('Stepper', module)
@@ -58,6 +59,31 @@ storiesOf('Stepper', module)
         { data: "second step" },
         { data: "third step" }
       ]}
-    />
+    ><EchoJson/></Container>
   })
+
+storiesOf('ScatterPlot', module)
+  .add('unfocused', () => <ScatterPlot
+    points={[
+      {
+        id: 'XXX',
+        x: 55,
+        y: 22,
+        color: 'green'
+      },
+      {
+        id: 'YYY',
+        x: 44,
+        y: 44,
+        color: 'yellow'
+      },
+      {
+        id: 'ZZZ',
+        x: 22,
+        y: 55,
+        color: "orange"
+      },
+    ]}
+  />)
+
 

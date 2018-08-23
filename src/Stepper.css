@@ -31,6 +31,8 @@
   color: #777;
 
   text-transform: uppercase;
+
+  cursor: pointer;
 }
 .Stepper_item__selected {
   background-color: grey;

@@ -41,6 +41,11 @@ class Stepper extends Component {
   render() {
     const { steps } = this.props
 
+    if(steps.length === 0) {
+      console.warn("`steps` prop is an empty array") /* eslint-disable-line no-console */
+      return null
+    }
+
     return <div className="Stepper">
       {
         this.renderButton(
@@ -75,10 +80,13 @@ class Stepper extends Component {
 }
 
 export const shapes = {
-  steps: PropTypes.array,
+  steps: PropTypes.array.isRequired,
   onStep: PropTypes.func
 }
 
 Stepper.propTypes = shapes
+Stepper.defaultProps = {
+  onStep: () => {}
+}
 
 export default Stepper

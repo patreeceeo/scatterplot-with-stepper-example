@@ -50,7 +50,7 @@ Container.propTypes = {
 }
 
 storiesOf('Stepper', module)
-  .add('minimal', () => <Stepper/>)
+  .add('minimal', () => <Stepper steps={[]} />)
   .add('basic', () => {
     return <Container
       steps={[

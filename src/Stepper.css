@@ -1,28 +1,45 @@
-.App {
-  text-align: center;
+
+*, *:before, *:after {
+  box-sizing: border-box;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
+.Stepper {
+  --font-size: 12px;
+  --item-size: calc(3 * var(--font-size));
+  --item-spacing: calc(var(--font-size) / 8);
+
+  display: flex;
+  flex-direction: row;
+
+  font-size: var(--font-size);
+  font-family: Verdana, Arial, sans-serif;
+  height: var(--item-size);
 }
 
-.App-header {
-  background-color: #222;
-  height: 150px;
-  padding: 20px;
-  color: white;
+.Stepper_item {
+  flex: none;
+  min-width: var(--item-size);
+  padding: 0 calc(var(--item-size) / 3);
+
+  margin: 0 var(--item-spacing);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background-color: #eee;
+  color: #777;
+
+  text-transform: uppercase;
+}
+.Stepper_item__selected {
+  background-color: grey;
+  font-weight: bold;
+  color: #000;
 }
 
-.App-title {
-  font-size: 1.5em;
-}
-
-.App-intro {
-  font-size: large;
-}
-
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.Arrow {
+  font-size: calc(1.5 * var(--font-size));
+  position: relative;
+  top: calc(-0.03 * var(--font-size));
 }

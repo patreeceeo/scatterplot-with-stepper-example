@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import cx from 'classnames'
 import './Stepper.css'
 
 export const wrap = (index, max) => index > max ? 0 : index < 0 ? max : index
@@ -21,8 +22,11 @@ class Stepper extends Component {
     return step.data
   }
 
-  renderButton(key, children, getStepIndexAfterPush) {
+  renderButton(key, children, isCurrentStep, getStepIndexAfterPush) {
     return <div
+      className={cx('Stepper_item', {
+        Stepper_item__selected: isCurrentStep
+      })}
       key={key}
       onClick={() => {
         this.setState(({stepIndex}) => ({
@@ -38,13 +42,34 @@ class Stepper extends Component {
     const { steps } = this.props
 
     return <div className="Stepper">
-      {this.renderButton('back', '<', goBack(steps.length - 1))}
+      {
+        this.renderButton(
+          'back',
+          <span className='Arrow'>‹</span>,
+          false,
+          goBack(steps.length - 1)
+        )
+      }
       {
         steps.map((step, index) => {
-          return this.renderButton(this.getKey(step), index + 1, goTo(index))
+          return this.renderButton(
+            this.getKey(step),
+            index + 1,
+            index === this.state.stepIndex,
+            goTo(index))
         })
       }
-      {this.renderButton('forward', '>', goForward(steps.length - 1))}
+      {
+        this.renderButton(
+          'forward',
+          <React.Fragment>
+            next
+            <span className='Arrow'>&nbsp;›</span>
+          </React.Fragment>,
+          false,
+          goForward(steps.length - 1)
+        )
+      }
     </div>
   }
 }

@@ -62,30 +62,55 @@ storiesOf('Stepper', module)
     ><EchoJson/></Container>
   })
 
+const points = [
+  {
+    id: 'XXX',
+    x: 55,
+    y: 22,
+    color: 'green'
+  },
+  {
+    id: 'YYY',
+    x: 44,
+    y: 44,
+    color: 'yellow'
+  },
+  {
+    id: 'ZZX',
+    x: 33,
+    y: 52,
+    color: "orange"
+  },
+  {
+    id: 'ZZY',
+    x: 25,
+    y: 46,
+    color: "orange"
+  },
+  {
+    id: 'ZZZ',
+    x: 22,
+    y: 55,
+    color: "orange"
+  },
+]
+
 storiesOf('ScatterPlot', module)
-  .add('unfocused', () => <ScatterPlot
-    width={100}
-    height={100}
-    points={[
-      {
-        id: 'XXX',
-        x: 55,
-        y: 22,
-        color: 'green'
-      },
-      {
-        id: 'YYY',
-        x: 44,
-        y: 44,
-        color: 'yellow'
-      },
-      {
-        id: 'ZZZ',
-        x: 22,
-        y: 55,
-        color: "orange"
-      },
-    ]}
+  .add('basic', () => <ScatterPlot
+    width={200}
+    height={200}
+    points={points}
+  />)
+  .add('showing average of selection', () => <ScatterPlot
+    width={200}
+    height={200}
+    points={points}
+    showAverage={
+      /* Support `showAverage` could be added through composition
+       * rather than built in if the ScatterPlot class becomes complicated.
+       */
+      ({color}) => color === 'orange'
+    }
   />)
 
 

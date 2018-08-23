@@ -21,31 +21,51 @@ export const pointToCircle = ({x, y, color, ...rest}) => ({
 
 export const makeDefaultTransform = () => (points) => {
   return {
-    circles: points.map(pointToCircle)
+    circles: points.map(pointToCircle),
+    lines: []
   }
 }
 
 export const makeAverageTransform = (isSelected) => (points) => {
   const selectedPoints = points.filter(isSelected)
 
-  const averageCircle = pointToCircle({
-    x: average(pluck(selectedPoints, 'x')),
-    y: average(pluck(selectedPoints, 'y')),
-    color: 'blue',
-    id: 'average'
-  })
+  // TODO
+  const color = selectedPoints[0].color
+
+  const averageCircle = {
+    ...pointToCircle({
+      x: average(pluck(selectedPoints, 'x')),
+      y: average(pluck(selectedPoints, 'y')),
+      color: 'white',
+      id: 'average'
+    }),
+    stroke: color,
+    strokeWidth: 1,
+  }
 
   const circles = [
     ...points
       .map((point) => isSelected(point)
-        ? point
+        ? {...point, color: color}
         : {...point, opacity: 0.5}
       )
       .map(pointToCircle),
     averageCircle
   ]
 
-  return {circles}
+  const lines = selectedPoints
+    .map(({x, y, id}) => ({
+      x1: x,
+      y1: y,
+      x2: averageCircle.cx,
+      y2: averageCircle.cy,
+      strokeWidth: 1,
+      stroke: color,
+      strokeOpacity: 0.3,
+      id: `${id}--average`
+    }))
+
+  return {circles, lines}
 }
 
 class ScatterPlot extends React.Component {
@@ -60,7 +80,7 @@ class ScatterPlot extends React.Component {
       .domain(d3ArrayExtent(points, ({y}) => y))
       .range([height, 0])
 
-    const { circles } = this.props.showAverage
+    const { circles, lines } = this.props.showAverage
       ? makeAverageTransform(this.props.showAverage)(points)
       : makeDefaultTransform()(points)
 
@@ -71,13 +91,24 @@ class ScatterPlot extends React.Component {
         }}
       >
         {
-          circles.map(({cx, cy, fill, r, opacity, id}) => {
+          lines.map(({x1, y1, x2, y2, id, ...rest}) => {
+            return <line
+              x1={xScale(x1)}
+              y1={yScale(y1)}
+              x2={xScale(x2)}
+              y2={yScale(y2)}
+              {...rest}
+              key={id}
+            />
+
+          })
+        }
+        {
+          circles.map(({cx, cy, id, ...rest}) => {
             return <circle
               cx={xScale(cx)}
               cy={yScale(cy)}
-              fill={fill}
-              r={r}
-              opacity={opacity}
+              {...rest}
               key={id}
             />
 

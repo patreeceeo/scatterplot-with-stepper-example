@@ -55,4 +55,52 @@ describe('makeAverageTransform', () => {
     }))
 
   })
+
+  it('adds lines connecting the average point', () => {
+    const transform = makeAverageTransform(({color}) => color === 'red')
+
+    const points = [
+      {
+        x: 2,
+        y: 6,
+        color: 'red'
+      },
+      {
+        x: 4,
+        y: 4,
+        color: 'red'
+      },
+      {
+        x: 6,
+        y: 2,
+        color: 'red'
+      },
+      {
+        x: 10,
+        y: 10,
+        color: 'orange'
+      },
+    ]
+
+    expect(transform(points).lines).toEqual([
+      expect.objectContaining({
+        x1: 2,
+        y1: 6,
+        x2: 4,
+        y2: 4
+      }),
+      expect.objectContaining({
+        x1: 4,
+        y1: 4,
+        x2: 4,
+        y2: 4
+      }),
+      expect.objectContaining({
+        x1: 6,
+        y1: 2,
+        x2: 4,
+        y2: 4
+      })
+    ])
+  })
 })

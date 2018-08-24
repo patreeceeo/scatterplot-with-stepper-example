@@ -1,5 +1,5 @@
 
-# Primer.ai Excercise
+# ScatterPlot with Stepper example project
 
 A partial recreation of https://archive.nytimes.com/www.nytimes.com/interactive/2013/10/15/health/where-is-breast-cancer.html using React and D3 created with `create-react-app`.
 

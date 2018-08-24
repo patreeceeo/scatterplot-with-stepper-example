@@ -16,8 +16,8 @@ export const pluck = (ary, key) => {
 
 export const datumToCircle = (mapping) => (datum) => ({
   shape: "circle",
-  cx: datum[mapping.x],
-  cy: datum[mapping.y],
+  cx: parseFloat(datum[mapping.x]),
+  cy: parseFloat(datum[mapping.y]),
   key: datum[mapping.guid],
   r: 6,
   fill: mapping.groupColors[datum[mapping.groupBy]]
@@ -36,8 +36,8 @@ export const makeDataTransformWithAverage = (mapping, group) => (data) => {
   const averageCircle = {
     shape: "circle",
     fadeIn: true,
-    cx: average(pluck(selectedData, mapping.x)),
-    cy: average(pluck(selectedData, mapping.y)),
+    cx: parseFloat(average(pluck(selectedData, mapping.x))),
+    cy: parseFloat(average(pluck(selectedData, mapping.y))),
     stroke: color,
     strokeWidth: 1,
     r: 6,
@@ -58,8 +58,8 @@ export const makeDataTransformWithAverage = (mapping, group) => (data) => {
     .map((datum) => ({
       shape: "line",
       fadeIn: true,
-      x1: datum[mapping.x],
-      y1: datum[mapping.y],
+      x1: parseFloat(datum[mapping.x]),
+      y1: parseFloat(datum[mapping.y]),
       x2: averageCircle.cx,
       y2: averageCircle.cy,
       strokeWidth: 1,
@@ -75,8 +75,9 @@ export const makeDataTransformWithAverage = (mapping, group) => (data) => {
 }
 
 function createScale (data, key, range) {
+  const domain = d3ArrayExtent(data, (datum) => datum[key])
   return d3ScaleLinear()
-    .domain(d3ArrayExtent(data, (datum) => datum[key]))
+    .domain(domain)
     .range(range)
 }
 
@@ -91,13 +92,15 @@ class ScatterPlot extends React.Component {
       mapping
     } = this.props
 
-    const xScale = createScale(data, mapping.x, [0, width])
+    const filteredData = mapping.filterBy ? data.filter(mapping.filterBy) : data
 
-    const yScale = createScale(data, mapping.y, [height, 0])
+    const xScale = createScale(filteredData, mapping.x, [0, width])
+
+    const yScale = createScale(filteredData, mapping.y, [height, 0])
 
     const transformedData = showAverage
-      ? makeDataTransformWithAverage(mapping, showAverage)(data)
-      : makeDataTransform(mapping)(data)
+      ? makeDataTransformWithAverage(mapping, showAverage)(filteredData)
+      : makeDataTransform(mapping)(filteredData)
 
     const syncFadeIn = syncStateChange({
       start: () => ({opacity: 0}),

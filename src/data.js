@@ -1,4 +1,4 @@
-{
+export default {
   "countries": [
     {
       "Name": "Belgium",

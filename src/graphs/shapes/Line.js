@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 
-class Line extends React.Component {
+class Line extends React.PureComponent {
   render() {
     const {
       xScale,

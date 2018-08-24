@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-class Circle extends React.Component {
+class Circle extends React.PureComponent {
   render() {
     const {
       xScale,

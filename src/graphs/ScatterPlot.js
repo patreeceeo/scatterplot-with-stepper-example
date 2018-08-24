@@ -98,7 +98,7 @@ function createScale (data, key, range) {
     .range(range)
 }
 
-class ScatterPlot extends React.Component {
+class ScatterPlot extends React.PureComponent {
   render() {
     const {
       data,

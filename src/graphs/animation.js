@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-export class AnimationGroup extends React.Component {
+export class AnimationGroup extends React.PureComponent {
   constructor(props) {
     super(props)
 

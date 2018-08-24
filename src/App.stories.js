@@ -18,7 +18,7 @@ EchoJson.propTypes = {
   data: PropTypes.object
 }
 
-class Container extends React.Component {
+class Container extends React.PureComponent {
   constructor(props) {
     super(props)
 

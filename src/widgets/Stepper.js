@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import cx from 'classnames'
 import './Stepper.css'
@@ -9,7 +9,7 @@ export const goBack = (max) => (index) => wrap(index - 1, max)
 export const goForward = (max) => (index) => wrap(index + 1, max)
 export const goTo = (index) => () => index
 
-class Stepper extends Component {
+class Stepper extends PureComponent {
   renderButton(key, children, isCurrentStep, getStepIndexAfterPush) {
     return <div
       className={cx('Stepper_item', {
@@ -68,7 +68,6 @@ export const shapes = {
   steps: PropTypes.array.isRequired,
   onStep: PropTypes.func,
   getStepKey: PropTypes.func.isRequired
-
 }
 
 Stepper.propTypes = shapes

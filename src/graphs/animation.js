@@ -1,6 +1,10 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
+/**
+ * Renders an SVG Group (<g/>) with support for a single animation
+ *
+ */
 export class AnimationGroup extends React.PureComponent {
   constructor(props) {
     super(props)
@@ -61,6 +65,11 @@ AnimationGroup.propTypes = {
   animation: PropTypes.object
 }
 
+/**
+ * Creates an animation which can be used with AnimationGroup
+ *
+ * @returns an object representing the animation
+ */
 export const fadeAnimation = (startOpacity, endOpacity) => {
   return {
     getInitialState() {

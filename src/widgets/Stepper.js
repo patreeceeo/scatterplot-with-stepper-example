@@ -3,14 +3,23 @@ import PropTypes from 'prop-types'
 import cx from 'classnames'
 import './Stepper.css'
 
+
 export const wrap = (index, max) => index > max ? 0 : index < 0 ? max : index
 
 export const goBack = (max) => (index) => wrap(index - 1, max)
 export const goForward = (max) => (index) => wrap(index + 1, max)
 export const goTo = (index) => () => index
 
+/**
+ * Stepper widget as a React component
+ */
 class Stepper extends PureComponent {
-  renderButton(key, children, isCurrentStep, getStepIndexAfterPush) {
+  renderButton(
+    key,
+    children,
+    isCurrentStep,
+    getStepIndexAfterPush
+  ) {
     return <div
       className={cx('Stepper_item', {
         Stepper_item__selected: isCurrentStep

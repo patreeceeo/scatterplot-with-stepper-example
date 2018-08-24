@@ -15,6 +15,14 @@ export const pluck = (ary, key) => {
   return ary.map((i) => i[key])
 }
 
+/**
+ * Creates a mapping function for creating circles from graph input data
+ *
+ * @param {object} mapping Describes how to map input data
+ * @returns {function}
+ *
+ * Note: this is a thunk!
+ */
 export const datumToCircle = (mapping) => (datum) => ({
   shape: "circle",
   cx: parseFloat(datum[mapping.x]),
@@ -24,6 +32,14 @@ export const datumToCircle = (mapping) => (datum) => ({
   fill: mapping.groupColors[datum[mapping.groupBy]]
 })
 
+/**
+ * Creates a function for creating shape groups from input data
+ *
+ * @param {object} mapping Describes how to map input data
+ * @returns {function}
+ *
+ * Note: this is a thunk!
+ */
 export const makeDataTransform = (mapping) => (data) => {
   const groups = groupBy(data, mapping.groupBy)
 
@@ -33,6 +49,14 @@ export const makeDataTransform = (mapping) => (data) => {
   }))
 }
 
+/**
+ * Creates a function for creating shape groups from input data
+ *
+ * @param {object} mapping Describes how to map input data
+ * @returns {function}
+ *
+ * Note: this is a thunk!
+ */
 export const makeDataTransformWithAverage = (mapping, groupValue) => (data) => {
   const isSelected = (datum) => datum[mapping.groupBy] === groupValue
   const selectedData = data.filter(isSelected)
@@ -91,13 +115,30 @@ export const makeDataTransformWithAverage = (mapping, groupValue) => (data) => {
   ]
 }
 
-function createScale (data, key, range) {
-  const domain = d3ArrayExtent(data, (datum) => datum[key])
+/**
+ * Convenience function for creating a D3 scale function
+ *
+ * @param {array} data The graph input data
+ * @param {string} domainKey The key in the input data corresponding
+ *    the dimension to be scaled, e.g. X, Y
+ * @param {array} range Minimum and maximum values
+ */
+function createScale (data, domainKey, range) {
+  const domain = d3ArrayExtent(data, (datum) => datum[domainKey])
   return d3ScaleLinear()
     .domain(domain)
     .range(range)
 }
 
+/**
+ * React ScatterPlot graph component using D3. Renders a points in linear 2D space.
+ *
+ * @param {array} props.data The data to be plotted
+ * @param {object} props.mapping Defines how the data should be translated in to points
+ * @param {string} props.mapping.groupBy Group points by this key from `data`
+ * @param {function} props.mapping.filterBy Only include items from data that pass this test
+ *
+ */
 class ScatterPlot extends React.PureComponent {
   render() {
     const {
@@ -123,6 +164,7 @@ class ScatterPlot extends React.PureComponent {
       height={height + margin * 2}
       width={width + margin * 2}
     >
+      {/* Add margin using a <g/> with transformation */}
       <g
         style={{
           transform: `translate(${margin}px, ${margin}px)`

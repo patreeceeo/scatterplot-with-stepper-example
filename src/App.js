@@ -50,6 +50,7 @@ export default class App extends React.Component {
         steps={this.scenes}
         stepIndex={this.state.currentScene}
         onStep={(currentScene) => this.setState({currentScene})}
+        getStepKey={(step) => step.showAverage || 'All HDI levels'}
       />
     </div>
   }

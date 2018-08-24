@@ -10,10 +10,6 @@ export const goForward = (max) => (index) => wrap(index + 1, max)
 export const goTo = (index) => () => index
 
 class Stepper extends Component {
-  getKey(step) {
-    return step.data
-  }
-
   renderButton(key, children, isCurrentStep, getStepIndexAfterPush) {
     return <div
       className={cx('Stepper_item', {
@@ -46,7 +42,7 @@ class Stepper extends Component {
       {
         steps.map((step, index) => {
           return this.renderButton(
-            this.getKey(step),
+            this.props.getStepKey(step),
             index + 1,
             index === this.props.stepIndex,
             goTo(index))
@@ -70,7 +66,9 @@ class Stepper extends Component {
 export const shapes = {
   stepIndex: PropTypes.number.isRequired,
   steps: PropTypes.array.isRequired,
-  onStep: PropTypes.func
+  onStep: PropTypes.func,
+  getStepKey: PropTypes.func.isRequired
+
 }
 
 Stepper.propTypes = shapes

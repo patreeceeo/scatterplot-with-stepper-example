@@ -11,96 +11,192 @@ describe('average', () => {
 
 describe('makeAverageTransform', () => {
   it('fades points that are not selected', () => {
-    const transform = makeAverageTransform(({color}) => color === 'orange')
-
-    const points = [
-      {color: 'blue'},
-      {color: 'orange'}
+    const data = [
+      {
+        ISO3: 'XXX',
+        incidence: 55,
+        mortality: 22,
+        HDI: 'very high'
+      },
+      {
+        ISO3: 'YYY',
+        incidence: 44,
+        mortality: 44,
+        HDI: 'high'
+      },
+      {
+        ISO3: 'ZZX',
+        incidence: 33,
+        mortality: 52,
+        HDI: 'medium'
+      },
+      {
+        ISO3: 'ZZY',
+        incidence: 25,
+        mortality: 46,
+        HDI: 'medium'
+      },
+      {
+        ISO3: 'ZZZ',
+        incidence: 22,
+        mortality: 55,
+        HDI: "medium"
+      },
     ]
 
-    expect(transform(points).circles[0].opacity).toBe(0.5)
+    const mapping = {
+      guid: "ISO3",
+      x: "incidence",
+      y: "mortality",
+      groupBy: "HDI",
+      groupColors: {
+        'very high': '#4AA1C9',
+        'high': '#459162',
+        'medium': '#CF764D',
+        'low': '#9F3B42'
+      }
+    }
+
+    const transform = makeAverageTransform(mapping, 'medium')
+
+    expect(transform(data)).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        fill: '#4AA1C9',
+        opacity: 0.5
+      }),
+      expect.objectContaining({
+        fill: '#459162',
+        opacity: 0.5
+      }),
+    ]))
   })
 
   it('adds the average point', () => {
-    const transform = makeAverageTransform(({color}) => color === 'red')
-
-    const points = [
+    const data = [
       {
-        x: 2,
-        y: 6,
-        color: 'red'
+        ISO3: 'XXX',
+        incidence: 55,
+        mortality: 22,
+        HDI: 'very high'
       },
       {
-        x: 4,
-        y: 4,
-        color: 'red'
+        ISO3: 'YYY',
+        incidence: 44,
+        mortality: 44,
+        HDI: 'high'
       },
       {
-        x: 6,
-        y: 2,
-        color: 'red'
+        ISO3: 'ZZX',
+        incidence: 22,
+        mortality: 66,
+        HDI: 'medium'
       },
       {
-        x: 10,
-        y: 10,
-        color: 'orange'
+        ISO3: 'ZZY',
+        incidence: 44,
+        mortality: 44,
+        HDI: 'medium'
+      },
+      {
+        ISO3: 'ZZZ',
+        incidence: 66,
+        mortality: 22,
+        HDI: "medium"
       },
     ]
 
-    const circles = transform(points).circles
+    const mapping = {
+      guid: "ISO3",
+      x: "incidence",
+      y: "mortality",
+      groupBy: "HDI",
+      groupColors: {
+        'very high': '#4AA1C9',
+        'high': '#459162',
+        'medium': '#CF764D',
+        'low': '#9F3B42'
+      }
+    }
 
-    expect(circles[circles.length - 1]).toEqual(expect.objectContaining({
-      cx: 4,
-      cy: 4,
+    const transform = makeAverageTransform(mapping, 'medium')
+
+    const shapes = transform(data)
+
+    expect(shapes[shapes.length - 1]).toEqual(expect.objectContaining({
+      cx: 44,
+      cy: 44,
     }))
 
   })
 
   it('adds lines connecting the average point', () => {
-    const transform = makeAverageTransform(({color}) => color === 'red')
-
-    const points = [
+    const data = [
       {
-        x: 2,
-        y: 6,
-        color: 'red'
+        ISO3: 'XXX',
+        incidence: 55,
+        mortality: 22,
+        HDI: 'very high'
       },
       {
-        x: 4,
-        y: 4,
-        color: 'red'
+        ISO3: 'YYY',
+        incidence: 44,
+        mortality: 44,
+        HDI: 'high'
       },
       {
-        x: 6,
-        y: 2,
-        color: 'red'
+        ISO3: 'ZZX',
+        incidence: 22,
+        mortality: 66,
+        HDI: 'medium'
       },
       {
-        x: 10,
-        y: 10,
-        color: 'orange'
+        ISO3: 'ZZY',
+        incidence: 44,
+        mortality: 44,
+        HDI: 'medium'
+      },
+      {
+        ISO3: 'ZZZ',
+        incidence: 66,
+        mortality: 22,
+        HDI: "medium"
       },
     ]
 
-    expect(transform(points).lines).toEqual([
+    const mapping = {
+      guid: "ISO3",
+      x: "incidence",
+      y: "mortality",
+      groupBy: "HDI",
+      groupColors: {
+        'very high': '#4AA1C9',
+        'high': '#459162',
+        'medium': '#CF764D',
+        'low': '#9F3B42'
+      }
+    }
+
+    const transform = makeAverageTransform(mapping, 'medium')
+
+    expect(transform(data)).toEqual(expect.arrayContaining([
       expect.objectContaining({
-        x1: 2,
-        y1: 6,
-        x2: 4,
-        y2: 4
+        x1: 22,
+        y1: 66,
+        x2: 44,
+        y2: 44
       }),
       expect.objectContaining({
-        x1: 4,
-        y1: 4,
-        x2: 4,
-        y2: 4
+        x1: 44,
+        y1: 44,
+        x2: 44,
+        y2: 44
       }),
       expect.objectContaining({
-        x1: 6,
-        y1: 2,
-        x2: 4,
-        y2: 4
+        x1: 66,
+        y1: 22,
+        x2: 44,
+        y2: 44
       })
-    ])
+    ]))
   })
 })

@@ -11,78 +11,104 @@ export const pluck = (ary, key) => {
   return ary.map((i) => i[key])
 }
 
-export const pointToCircle = ({x, y, color, ...rest}) => ({
-  cx: x,
-  cy: y,
-  fill: color,
+export const datumToCircle = (mapping) => (datum) => ({
+  shape: "circle",
+  cx: datum[mapping.x],
+  cy: datum[mapping.y],
+  key: datum[mapping.guid],
   r: 6,
-  ...rest
+  fill: mapping.groupColors[datum[mapping.groupBy]]
 })
 
-export const makeDefaultTransform = () => (points) => {
-  return {
-    circles: points.map(pointToCircle),
-    lines: []
-  }
+export const makeDataTransform = (mapping) => (data) => {
+  return data.map(datumToCircle(mapping))
 }
 
-export const makeAverageTransform = (isSelected) => (points) => {
-  const selectedPoints = points.filter(isSelected)
+export const makeAverageTransform = (mapping, group) => (data) => {
+  const isSelected = (datum) => datum[mapping.groupBy] === group
+  const selectedData = data.filter(isSelected)
 
-  // TODO
-  const color = selectedPoints[0].color
+  const color = mapping.groupColors[group]
 
   const averageCircle = {
-    ...pointToCircle({
-      x: average(pluck(selectedPoints, 'x')),
-      y: average(pluck(selectedPoints, 'y')),
-      color: 'white',
-      id: 'average'
-    }),
+    shape: "circle",
+    cx: average(pluck(selectedData, mapping.x)),
+    cy: average(pluck(selectedData, mapping.y)),
     stroke: color,
     strokeWidth: 1,
+    r: 6,
+    fill: "white",
+    key: 'average',
   }
 
   const circles = [
-    ...points
-      .map((point) => isSelected(point)
-        ? {...point, color: color}
-        : {...point, opacity: 0.5}
-      )
-      .map(pointToCircle),
+    ...data.map((datum) => ({
+      ...datumToCircle(mapping)(datum),
+      opacity: isSelected(datum) ? 1 : 0.5
+    })),
     averageCircle
   ]
 
-  const lines = selectedPoints
-    .map(({x, y, id}) => ({
-      x1: x,
-      y1: y,
+  const lines = selectedData
+    .map((datum) => ({
+      shape: "line",
+      x1: datum[mapping.x],
+      y1: datum[mapping.y],
       x2: averageCircle.cx,
       y2: averageCircle.cy,
       strokeWidth: 1,
       stroke: color,
       strokeOpacity: 0.3,
-      id: `${id}--average`
+      key: `${datum[mapping.guid]}--average`
     }))
 
-  return {circles, lines}
+  return [
+    ...lines,
+    ...circles
+  ]
 }
 
 class ScatterPlot extends React.Component {
   render() {
-    const { points, width, height, margin } = this.props
+    const {
+      data,
+      width,
+      height,
+      margin,
+      showAverage,
+      mapping
+    } = this.props
 
     const xScale = d3ScaleLinear()
-      .domain(d3ArrayExtent(points, ({x}) => x))
+      .domain(d3ArrayExtent(data, (datum) => datum[mapping.x]))
       .range([0, width])
 
     const yScale = d3ScaleLinear()
-      .domain(d3ArrayExtent(points, ({y}) => y))
+      .domain(d3ArrayExtent(data, (datum) => datum[mapping.y]))
       .range([height, 0])
 
-    const { circles, lines } = this.props.showAverage
-      ? makeAverageTransform(this.props.showAverage)(points)
-      : makeDefaultTransform()(points)
+    const transformedData = showAverage
+      ? makeAverageTransform(mapping, showAverage)(data)
+      : makeDataTransform(mapping)(data)
+
+    const renderShape = {
+      line: function Line ({x1, y1, x2, y2, ...rest}) {
+        return <line
+          x1={xScale(x1)}
+          y1={yScale(y1)}
+          x2={xScale(x2)}
+          y2={yScale(y2)}
+          {...rest}
+        />
+      },
+      circle: function Circle ({cx, cy, ...rest}) {
+        return <circle
+          cx={xScale(cx)}
+          cy={yScale(cy)}
+          {...rest}
+        />
+      }
+    }
 
     return <svg height={height + margin * 2} width={width + margin * 2}>
       <g
@@ -90,41 +116,21 @@ class ScatterPlot extends React.Component {
           transform: `translate(${margin}px, ${margin}px)`
         }}
       >
-        {
-          lines.map(({x1, y1, x2, y2, id, ...rest}) => {
-            return <line
-              x1={xScale(x1)}
-              y1={yScale(y1)}
-              x2={xScale(x2)}
-              y2={yScale(y2)}
-              {...rest}
-              key={id}
-            />
-
-          })
-        }
-        {
-          circles.map(({cx, cy, id, ...rest}) => {
-            return <circle
-              cx={xScale(cx)}
-              cy={yScale(cy)}
-              {...rest}
-              key={id}
-            />
-
-          })
-        }
+        {transformedData.map(({shape, ...attrs}) => {
+          return renderShape[shape](attrs)
+        })}
       </g>
     </svg>
   }
 }
 
 ScatterPlot.propTypes = {
-  points: PropTypes.array.isRequired,
+  data: PropTypes.array.isRequired,
   height: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
   margin: PropTypes.number,
-  showAverage: PropTypes.func
+  showAverage: PropTypes.string,
+  mapping: PropTypes.object.isRequired
 }
 
 ScatterPlot.defaultProps = {

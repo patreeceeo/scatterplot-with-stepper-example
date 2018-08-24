@@ -62,54 +62,70 @@ storiesOf('Stepper', module)
     ><EchoJson/></Container>
   })
 
-const points = [
+const data = [
   {
-    id: 'XXX',
-    x: 55,
-    y: 22,
-    color: 'green'
+    ISO3: 'XXX',
+    incidence: 55,
+    mortality: 22,
+    HDI: 'very high'
   },
   {
-    id: 'YYY',
-    x: 44,
-    y: 44,
-    color: 'yellow'
+    ISO3: 'YYY',
+    incidence: 44,
+    mortality: 44,
+    HDI: 'high'
   },
   {
-    id: 'ZZX',
-    x: 33,
-    y: 52,
-    color: "orange"
+    ISO3: 'ZZX',
+    incidence: 33,
+    mortality: 52,
+    HDI: 'medium'
   },
   {
-    id: 'ZZY',
-    x: 25,
-    y: 46,
-    color: "orange"
+    ISO3: 'ZZY',
+    incidence: 25,
+    mortality: 46,
+    HDI: 'medium'
   },
   {
-    id: 'ZZZ',
-    x: 22,
-    y: 55,
-    color: "orange"
+    ISO3: 'ZZZ',
+    incidence: 22,
+    mortality: 55,
+    HDI: "medium"
   },
 ]
+
+
+const mapping = {
+  guid: "ISO3",
+  x: "incidence",
+  y: "mortality",
+  groupBy: "HDI",
+  groupColors: {
+    'very high': '#4AA1C9',
+    'high': '#459162',
+    'medium': '#CF764D',
+    'low': '#9F3B42'
+  }
+}
 
 storiesOf('ScatterPlot', module)
   .add('basic', () => <ScatterPlot
     width={200}
     height={200}
-    points={points}
+    data={data}
+    mapping={mapping}
   />)
   .add('showing average of selection', () => <ScatterPlot
     width={200}
     height={200}
-    points={points}
+    data={data}
+    mapping={mapping}
     showAverage={
       /* Support `showAverage` could be added through composition
        * rather than built in if the ScatterPlot class becomes complicated.
        */
-      ({color}) => color === 'orange'
+      "medium"
     }
   />)
 

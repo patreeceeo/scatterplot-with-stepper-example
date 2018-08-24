@@ -37,6 +37,7 @@ class Container extends React.Component {
         key='stepper'
         steps={this.props.steps}
         onStep={this.handleStep}
+        stepIndex={this.state.stepIndex}
       />,
       React.cloneElement(React.Children.only(this.props.children), {
         data: this.props.steps[this.state.stepIndex]
@@ -51,7 +52,7 @@ Container.propTypes = {
 }
 
 storiesOf('Stepper', module)
-  .add('minimal', () => <Stepper steps={[]} />)
+  .add('minimal', () => <Stepper steps={[]} startAt={0} />)
   .add('basic', () => {
     return <Container
       steps={[
@@ -59,6 +60,7 @@ storiesOf('Stepper', module)
         { data: "second step" },
         { data: "third step" }
       ]}
+      startAt={0}
     ><EchoJson/></Container>
   })
 

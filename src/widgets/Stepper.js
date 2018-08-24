@@ -10,14 +10,6 @@ export const goForward = (max) => (index) => wrap(index + 1, max)
 export const goTo = (index) => () => index
 
 class Stepper extends Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      stepIndex: 0
-    }
-  }
-
   getKey(step) {
     return step.data
   }
@@ -29,11 +21,7 @@ class Stepper extends Component {
       })}
       key={key}
       onClick={() => {
-        this.setState(({stepIndex}) => ({
-          stepIndex: getStepIndexAfterPush(stepIndex)
-        }), () => {
-          this.props.onStep(this.state.stepIndex)
-        })
+        this.props.onStep(getStepIndexAfterPush(this.props.stepIndex))
       }}
     >{children}</div>
   }
@@ -60,7 +48,7 @@ class Stepper extends Component {
           return this.renderButton(
             this.getKey(step),
             index + 1,
-            index === this.state.stepIndex,
+            index === this.props.stepIndex,
             goTo(index))
         })
       }
@@ -80,6 +68,7 @@ class Stepper extends Component {
 }
 
 export const shapes = {
+  stepIndex: PropTypes.number.isRequired,
   steps: PropTypes.array.isRequired,
   onStep: PropTypes.func
 }

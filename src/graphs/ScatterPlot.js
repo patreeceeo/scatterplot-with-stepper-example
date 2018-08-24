@@ -36,8 +36,8 @@ export const makeDataTransformWithAverage = (mapping, group) => (data) => {
   const averageCircle = {
     shape: "circle",
     fadeIn: true,
-    cx: parseFloat(average(pluck(selectedData, mapping.x))),
-    cy: parseFloat(average(pluck(selectedData, mapping.y))),
+    cx: average(pluck(selectedData, mapping.x).map(parseFloat)),
+    cy: average(pluck(selectedData, mapping.y).map(parseFloat)),
     stroke: color,
     strokeWidth: 1,
     r: 6,

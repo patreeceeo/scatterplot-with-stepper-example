@@ -1,7 +1,9 @@
 import {
   average,
-  makeAverageTransform
+  makeDataTransformWithAverage
 } from './ScatterPlot.js'
+
+import last from 'lodash.last'
 
 describe('average', () => {
   it('returns the average of an array', () => {
@@ -9,7 +11,7 @@ describe('average', () => {
   })
 })
 
-describe('makeAverageTransform', () => {
+describe('makeDataTransformWithAverage', () => {
   it('fades points that are not selected', () => {
     const data = [
       {
@@ -57,18 +59,17 @@ describe('makeAverageTransform', () => {
       }
     }
 
-    const transform = makeAverageTransform(mapping, 'medium')
+    const transform = makeDataTransformWithAverage(mapping, 'medium')
 
-    expect(transform(data)).toEqual(expect.arrayContaining([
-      expect.objectContaining({
-        fill: '#4AA1C9',
-        opacity: 0.5
-      }),
-      expect.objectContaining({
-        fill: '#459162',
-        opacity: 0.5
-      }),
-    ]))
+    const groups = transform(data)
+
+    expect(groups[0].animation.getEndState()).toEqual({
+      opacity: 0.5
+    })
+
+    expect(groups[1].animation.getEndState()).toEqual({
+      opacity: 0.5
+    })
   })
 
   it('adds the average point', () => {
@@ -118,11 +119,11 @@ describe('makeAverageTransform', () => {
       }
     }
 
-    const transform = makeAverageTransform(mapping, 'medium')
+    const transform = makeDataTransformWithAverage(mapping, 'medium')
 
-    const shapes = transform(data)
+    const groups = transform(data)
 
-    expect(shapes[shapes.length - 1]).toEqual(expect.objectContaining({
+    expect(last(last(groups).shapes)).toEqual(expect.objectContaining({
       cx: 44,
       cy: 44,
     }))
@@ -176,9 +177,11 @@ describe('makeAverageTransform', () => {
       }
     }
 
-    const transform = makeAverageTransform(mapping, 'medium')
+    const transform = makeDataTransformWithAverage(mapping, 'medium')
 
-    expect(transform(data)).toEqual(expect.arrayContaining([
+    const groups = transform(data)
+
+    expect(last(groups).shapes).toEqual(expect.arrayContaining([
       expect.objectContaining({
         x1: 22,
         y1: 66,

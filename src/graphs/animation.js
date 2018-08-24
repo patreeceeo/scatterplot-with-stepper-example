@@ -1,61 +1,78 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-export function syncStateChange ({start, end, delay = 10}) {
-  let components = []
-  let timeoutIds = []
-  return (() => {
-
-    return function enqueStateChange (component) {
-      components = [...components, component]
-      timeoutIds = [...timeoutIds, setTimeout(() => {
-        components.forEach((c) => {
-          c.setState(end(c.props))
-        })
-      }, delay)]
-
-      component.setState(start(component.props))
-
-      return () => {
-        timeoutIds.forEach(clearTimeout)
-      }
-    }
-  })()
-}
-
-export class SyncAnim extends React.Component {
+export class AnimationGroup extends React.Component {
   constructor(props) {
     super(props)
 
-    this.state = {}
+    this.state = props.animation
+      ? props.animation.getInitialState()
+      : this.getInitialState()
   }
 
-  componentDidMount() {
-    this.cancel = this.props.sync(this)
+  getInitialState() {
+    return {
+      opacity: 1
+    }
+  }
+
+  scheduleAnimation(animation) {
+    const animationTimeout = setTimeout(() => {
+      this.setState(animation.getEndState())
+    }, 10)
+
+    this.cancelAnimation = () => {
+      clearTimeout(animationTimeout)
+    }
+  }
+
+  scheduleAnimationReset() {
+    const animationTimeout = setTimeout(() => {
+      this.setState(this.getInitialState())
+    }, 10)
+
+    this.cancelAnimation = () => {
+      clearTimeout(animationTimeout)
+    }
   }
 
   componentWillUnmount() {
-    this.cancel()
+    this.cancelAnimation && this.cancelAnimation()
   }
 
   render() {
-    const {children, sync} = this.props
+    this.props.animation
+      ? this.scheduleAnimation(this.props.animation)
+      : this.scheduleAnimationReset()
 
-    void sync
-
-    return React.cloneElement(
-      React.Children.only(children),
-      {
-        style: {
-          opacity: this.state.opacity,
-          transition: 'opacity 1s'
-        }
-      }
-    )
+    return <g
+      style={{
+        opacity: this.state.opacity,
+        transition: 'opacity 1s'
+      }}
+    >
+      {this.props.children}
+    </g>
   }
 }
 
-SyncAnim.propTypes = {
+AnimationGroup.propTypes = {
   children: PropTypes.node,
-  sync: PropTypes.func
+  animation: PropTypes.object
 }
+
+export const fadeAnimation = (startOpacity, endOpacity) => {
+  return {
+    getInitialState() {
+      return {
+        opacity: startOpacity
+      }
+    },
+    getEndState() {
+      return {
+        opacity: endOpacity
+      }
+    }
+  }
+}
+

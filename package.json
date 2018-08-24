@@ -8,6 +8,7 @@
     "d3-scale": "^2.1.0",
     "eslint": "^5.4.0",
     "eslint-plugin-react": "^7.11.1",
+    "lodash.groupby": "^4.6.0",
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
     "react-scripts": "1.1.5"
@@ -26,6 +27,7 @@
     "@storybook/addons": "^3.4.10",
     "@storybook/react": "^3.4.10",
     "babel-core": "^6.26.3",
-    "babel-runtime": "^6.26.0"
+    "babel-runtime": "^6.26.0",
+    "lodash.last": "^3.0.0"
   }
 }

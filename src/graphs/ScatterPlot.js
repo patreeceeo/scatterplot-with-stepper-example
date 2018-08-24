@@ -2,9 +2,10 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { extent as d3ArrayExtent } from 'd3-array'
 import { scaleLinear as d3ScaleLinear } from 'd3-scale'
-import { syncStateChange } from './animation.js'
+import { AnimationGroup, fadeAnimation } from './animation.js'
 import Circle from './shapes/Circle.js'
 import Line from './shapes/Line.js'
+import groupBy from 'lodash.groupby'
 
 export const average = (ary) => {
   return ary.reduce((total, n) => total + n, 0) / ary.length
@@ -24,18 +25,22 @@ export const datumToCircle = (mapping) => (datum) => ({
 })
 
 export const makeDataTransform = (mapping) => (data) => {
-  return data.map(datumToCircle(mapping))
+  const groups = groupBy(data, mapping.groupBy)
+
+  return Object.entries(groups).map(([groupValue, group]) => ({
+    shapes: group.map(datumToCircle(mapping)),
+    groupValue
+  }))
 }
 
-export const makeDataTransformWithAverage = (mapping, group) => (data) => {
-  const isSelected = (datum) => datum[mapping.groupBy] === group
+export const makeDataTransformWithAverage = (mapping, groupValue) => (data) => {
+  const isSelected = (datum) => datum[mapping.groupBy] === groupValue
   const selectedData = data.filter(isSelected)
 
-  const color = mapping.groupColors[group]
+  const color = mapping.groupColors[groupValue]
 
   const averageCircle = {
     shape: "circle",
-    fadeIn: true,
     cx: average(pluck(selectedData, mapping.x).map(parseFloat)),
     cy: average(pluck(selectedData, mapping.y).map(parseFloat)),
     stroke: color,
@@ -46,18 +51,13 @@ export const makeDataTransformWithAverage = (mapping, group) => (data) => {
   }
 
   const circles = [
-    ...data.map((datum) => ({
-      ...datumToCircle(mapping)(datum),
-      opacity: isSelected(datum) ? 1 : 0.5,
-      fadeOut: !isSelected(datum)
-    })),
+    ...selectedData.map(datumToCircle(mapping)),
     averageCircle
   ]
 
   const lines = selectedData
     .map((datum) => ({
       shape: "line",
-      fadeIn: true,
       x1: parseFloat(datum[mapping.x]),
       y1: parseFloat(datum[mapping.y]),
       x2: averageCircle.cx,
@@ -68,9 +68,26 @@ export const makeDataTransformWithAverage = (mapping, group) => (data) => {
       key: `${datum[mapping.guid]}--average`
     }))
 
+  const otherGroups = Object.entries(groupBy(data, mapping.groupBy))
+    .filter(([currentGroupValue]) => currentGroupValue !== groupValue)
+    .map(([groupValue, group]) => {
+      return {
+        shapes: group.map(datumToCircle(mapping)),
+        animation: fadeAnimation(1, 0.5),
+        groupValue
+      }
+    })
+
   return [
-    ...lines,
-    ...circles
+    ...otherGroups,
+    {
+      shapes: [
+        ...lines,
+        ...circles
+      ],
+      animation: fadeAnimation(0, 1),
+      groupValue
+    }
   ]
 }
 
@@ -98,19 +115,9 @@ class ScatterPlot extends React.Component {
 
     const yScale = createScale(filteredData, mapping.y, [height, 0])
 
-    const transformedData = showAverage
+    const groups = showAverage
       ? makeDataTransformWithAverage(mapping, showAverage)(filteredData)
       : makeDataTransform(mapping)(filteredData)
-
-    const syncFadeIn = syncStateChange({
-      start: () => ({opacity: 0}),
-      end: () => ({opacity: 1})
-    })
-
-    const syncFadeOut = syncStateChange({
-      start: () => ({opacity: 1}),
-      end: ({opacity}) => ({opacity})
-    })
 
     return <svg
       height={height + margin * 2}
@@ -121,36 +128,30 @@ class ScatterPlot extends React.Component {
           transform: `translate(${margin}px, ${margin}px)`
         }}
       >
-        {transformedData.map(({
-          shape,
-          key,
-          fadeIn,
-          fadeOut,
-          ...svgAttrs
-        }) => {
+        {groups.map(({groupValue, shapes, animation}) => {
+          return <AnimationGroup
+            key={groupValue}
+            animation={animation}
+          >
+            {shapes.map(({
+              shape,
+              key,
+              ...svgAttrs
+            }) => {
 
-          let syncAnim
+              const Shape = ({
+                line: Line,
+                circle: Circle
+              })[shape]
 
-          if(fadeIn) {
-            syncAnim = syncFadeIn
-          }
-
-          if(fadeOut) {
-            syncAnim = syncFadeOut
-          }
-
-          const Shape = ({
-            line: Line,
-            circle: Circle
-          })[shape]
-
-          return <Shape
-            key={key}
-            xScale={xScale}
-            yScale={yScale}
-            syncAnim={syncAnim}
-            {...svgAttrs}
-          />
+              return <Shape
+                key={key}
+                xScale={xScale}
+                yScale={yScale}
+                {...svgAttrs}
+              />
+            })}
+          </AnimationGroup>
         })}
       </g>
     </svg>

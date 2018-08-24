@@ -1,8 +1,4 @@
 
-*, *:before, *:after {
-  box-sizing: border-box;
-}
-
 .Stepper {
   --font-size: 12px;
   --item-size: calc(3 * var(--font-size));

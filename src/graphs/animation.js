@@ -1,10 +1,10 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-export function syncStateChange (start, end) {
+export function syncStateChange ({start, end, delay = 10}) {
+  let components = []
+  let timeoutIds = []
   return (() => {
-    let components = []
-    let timeoutIds = []
 
     return function enqueStateChange (component) {
       components = [...components, component]
@@ -12,7 +12,7 @@ export function syncStateChange (start, end) {
         components.forEach((c) => {
           c.setState(end(c.props))
         })
-      }, 10)]
+      }, delay)]
 
       component.setState(start(component.props))
 

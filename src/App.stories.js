@@ -3,8 +3,8 @@ import PropTypes from 'prop-types'
 
 import { storiesOf } from '@storybook/react'
 
-import Stepper, { shapes } from './Stepper.js'
-import ScatterPlot from './ScatterPlot.js'
+import Stepper, { shapes } from './widgets/Stepper.js'
+import ScatterPlot from './graphs/ScatterPlot.js'
 
 class EchoJson extends React.Component {
   render() {
@@ -122,7 +122,7 @@ storiesOf('ScatterPlot', module)
     data={data}
     mapping={mapping}
     showAverage={
-      /* Support `showAverage` could be added through composition
+      /* Support for `showAverage` could be added through composition
        * rather than built in if the ScatterPlot class becomes complicated.
        */
       "medium"
